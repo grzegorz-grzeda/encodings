@@ -35,18 +35,18 @@
 /**
  * @brief Get the required size of destination buffer for Base64 decoded content
  * @param[in] base64 pointer to Base64 C-string
- * @return size of the buffer needed to hold the decoded value (including null
- * character)
+ * @return size of the buffer needed to hold the decoded value
  */
 size_t encodings_base64_get_decode_buffer_size(const char* base64);
 
 /**
  * @brief Decode Base64 input stream
  * @param[in] base64 pointer to Base64 input C-string
- * @param[out] text pointer to destination buffer for decoded text
- * @note The text destination buffer needs to be able to hold all decoded text!
+ * @param[out] decoded pointer to destination buffer for decoded data
+ * @note The decoded destination buffer needs to be able to hold all decoded
+ * data!
  */
-void encodings_base64_decode(const char* base64, char* text);
+void encodings_base64_decode(const char* base64, char* decoded);
 
 /**
  * @}

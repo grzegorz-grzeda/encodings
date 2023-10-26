@@ -25,15 +25,54 @@
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "cmocka.h"
 
 #include "encodings-base64.h"
 
-static void dummy_test(void** state) {}
+static void test_calculate_decode_buffer_length(void** state) {
+    size_t size = encodings_base64_get_decode_buffer_size("AA==");  // "\0"
+    assert_int_equal(size, 1);
+    size = encodings_base64_get_decode_buffer_size("QQ==");  // "A"
+    assert_int_equal(size, 1);
+
+    size = encodings_base64_get_decode_buffer_size("aGVsbG8=");  // "hello"
+    assert_int_equal(size, 5);
+
+    size = encodings_base64_get_decode_buffer_size(
+        "TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQ=");  // "Lorem ipsum dolor sit
+                                                  // amet"
+    assert_int_equal(size, 26);
+}
+
+static void test_decode_text(void** state) {
+    const char* encoded = "QQ==";  // "A"
+    char* decoded = calloc(encodings_base64_get_decode_buffer_size(encoded) + 1,
+                           sizeof(char));
+    encodings_base64_decode(encoded, decoded);
+    assert_string_equal(decoded, "A");
+    free(decoded);
+
+    encoded = "aGVsbG8=";  // "hello"
+    decoded = calloc(encodings_base64_get_decode_buffer_size(encoded) + 1,
+                     sizeof(char));
+    encodings_base64_decode(encoded, decoded);
+    assert_string_equal(decoded, "hello");
+    free(decoded);
+
+    encoded = "TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQ=";  // "Lorem ipsum dolor sit
+                                                       // amet"
+    decoded = calloc(encodings_base64_get_decode_buffer_size(encoded) + 1,
+                     sizeof(char));
+    encodings_base64_decode(encoded, decoded);
+    assert_string_equal(decoded, "Lorem ipsum dolor sit amet");
+    free(decoded);
+}
 
 int main(int argc, char** argv) {
     const struct CMUnitTest tests[] = {
-        cmocka_unit_test(dummy_test),
+        cmocka_unit_test(test_calculate_decode_buffer_length),
+        cmocka_unit_test(test_decode_text),
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);
